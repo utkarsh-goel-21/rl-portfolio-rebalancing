@@ -35,3 +35,8 @@ MOMENTUM_WINDOW = 60
 SEED = 42
 
 FEATURE_CLIP = 5.0          # clip standardised features to +/- this value
+
+# ---- Baselines ----
+REBALANCE_EVERY = 21        # trading days (~monthly)
+MARKOWITZ_LOOKBACK = 252
+MOMENTUM_TOP_K = 2
