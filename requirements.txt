@@ -1,0 +1,14 @@
+numpy
+pandas
+scipy
+matplotlib
+seaborn
+yfinance
+gymnasium
+stable-baselines3
+torch
+tensorboard
+streamlit
+plotly
+jupyter
+ipykernel
