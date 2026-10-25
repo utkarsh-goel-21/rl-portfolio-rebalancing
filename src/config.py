@@ -46,3 +46,17 @@ ACTION_TEMPERATURE = 5.0    # softmax(action * T); action in [-1, 1]
 RISK_AVERSION = 5.0         # lambda in reward = net_ret - lambda * w' Cov w
 COV_WINDOW = 20             # trailing days for the covariance estimate
 REWARD_SCALE = 100.0        # scale reward for stable PPO training
+
+# ---- PPO training ----
+TOTAL_TIMESTEPS = 300_000
+N_ENVS = 4
+EVAL_FREQ = 10_000          # run a validation rollout every N timesteps
+LOG_DIR = ROOT / "results" / "logs"
+TB_DIR = ROOT / "tensorboard_logs"
+
+PPO_PARAMS = dict(
+    learning_rate=3e-4, n_steps=256, batch_size=128, n_epochs=10,
+    gamma=0.99, gae_lambda=0.95, clip_range=0.2, ent_coef=0.005,
+    vf_coef=0.5, max_grad_norm=0.5,
+)
+POLICY_KWARGS = dict(net_arch=dict(pi=[64, 64], vf=[64, 64]), log_std_init=-1.0)
