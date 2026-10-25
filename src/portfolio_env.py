@@ -44,7 +44,7 @@ class PortfolioEnv(gym.Env):
 
     def __init__(self, features, returns, cov, episode_length=EPISODE_LENGTH,
                  random_start=True, cost=TRANSACTION_COST, risk_aversion=RISK_AVERSION,
-                 temperature=ACTION_TEMPERATURE, reward_scale=REWARD_SCALE):
+                 temperature=ACTION_TEMPERATURE, reward_scale=REWARD_SCALE, turnover_penalty=0.0, smoothing=1.0):
         super().__init__()
         assert len(features) == len(returns) == len(cov), "inputs must be aligned"
         self.features = features.values.astype(np.float32)
@@ -60,6 +60,9 @@ class PortfolioEnv(gym.Env):
         self.risk_aversion = risk_aversion
         self.temperature = temperature
         self.reward_scale = reward_scale
+        self.turnover_penalty = turnover_penalty   # kappa: extra reward penalty per unit turnover
+        self.smoothing = smoothing                 # alpha: 1.0 = jump straight to target weights
+
 
         self.n_features = self.features.shape[1]
         self.observation_space = spaces.Box(
@@ -87,6 +90,8 @@ class PortfolioEnv(gym.Env):
     def step(self, action):
         action = np.clip(np.asarray(action, dtype=np.float64), -1.0, 1.0)
         target = softmax_weights(action, self.temperature)
+        if self.smoothing < 1.0:                   # partial adjustment toward desired weights
+            target = self.w + self.smoothing * (target - self.w)
 
         turnover = float(np.abs(target - self.w).sum())
         r = self.returns[self.i + 1]                      # realised NEXT-day returns
@@ -94,7 +99,7 @@ class PortfolioEnv(gym.Env):
         net = gross - self.cost * turnover
         risk = float(target @ self.cov[self.i] @ target)  # ex-ante daily variance (past data)
 
-        reward = self.reward_scale * (net - self.risk_aversion * risk)
+        reward = self.reward_scale * (net - self.risk_aversion * risk - self.turnover_penalty * turnover)
 
         self.w = target * (1.0 + r) / (1.0 + gross)       # drift to next close
         self.value *= (1.0 + net)

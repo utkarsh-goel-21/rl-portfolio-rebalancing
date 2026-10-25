@@ -24,9 +24,9 @@ from src.portfolio_env import make_env
 torch.set_num_threads(1)   # tiny MLPs run faster single-threaded on CPU
 
 
-def rollout(model, split):
+def rollout(model, split, env_kwargs=None):
     """Run the policy deterministically over a full split; return the episode history."""
-    env = make_env(split, random_start=False)
+    env = make_env(split, random_start=False, **(env_kwargs or {}))
     obs, _ = env.reset()
     done = False
     while not done:
@@ -39,13 +39,14 @@ def rollout(model, split):
 class ValSharpeCallback(BaseCallback):
     """Every `eval_freq` steps: evaluate on validation, save the best-Sharpe checkpoint."""
 
-    def __init__(self, eval_freq, save_path):
+    def __init__(self, eval_freq, save_path, env_kwargs=None):
         super().__init__(verbose=0)
         self.eval_freq, self.save_path = eval_freq, save_path
+        self.env_kwargs = env_kwargs or {}
         self.next_eval, self.best, self.records = eval_freq, -np.inf, []
 
     def _evaluate(self):
-        h = rollout(self.model, "val")
+        h = rollout(self.model, "val", self.env_kwargs)
         m = compute_metrics(h["ret"], h["turnover"])
         is_best = bool(m["Sharpe"] > self.best)
         if is_best:

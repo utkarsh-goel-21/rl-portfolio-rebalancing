@@ -1,0 +1,7 @@
+{
+  "turnover_penalty": 0.003,
+  "smoothing": 0.2,
+  "risk_aversion": 20.0,
+  "cost": 0.001,
+  "name": "both"
+}
