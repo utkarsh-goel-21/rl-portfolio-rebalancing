@@ -33,3 +33,5 @@ MOMENTUM_WINDOW = 60
 
 # ---- Reproducibility ----
 SEED = 42
+
+FEATURE_CLIP = 5.0          # clip standardised features to +/- this value
