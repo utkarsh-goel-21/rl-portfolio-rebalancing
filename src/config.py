@@ -40,3 +40,9 @@ FEATURE_CLIP = 5.0          # clip standardised features to +/- this value
 REBALANCE_EVERY = 21        # trading days (~monthly)
 MARKOWITZ_LOOKBACK = 252
 MOMENTUM_TOP_K = 2
+
+# ---- RL environment ----
+ACTION_TEMPERATURE = 5.0    # softmax(action * T); action in [-1, 1]
+RISK_AVERSION = 5.0         # lambda in reward = net_ret - lambda * w' Cov w
+COV_WINDOW = 20             # trailing days for the covariance estimate
+REWARD_SCALE = 100.0        # scale reward for stable PPO training
